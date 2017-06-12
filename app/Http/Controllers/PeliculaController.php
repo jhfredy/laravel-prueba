@@ -5,6 +5,8 @@ namespace Cinema\Http\Controllers;
 use Illuminate\Http\Request;
 use Cinema\Genre;
 use Cinema\Movie;
+use Redirect;
+use Session;
 
 class PeliculaController extends Controller
 {
@@ -41,7 +43,8 @@ class PeliculaController extends Controller
     {
         Movie::create(
            $request->all());
-        return "listo";
+        Session::flash('message','pelicula creada correctamente');
+        return Redirect::to('/pelicula');
     }
 
     /**
@@ -63,7 +66,9 @@ class PeliculaController extends Controller
      */
     public function edit($id)
     {
-        //
+          $genres=Genre::pluck('genre','id');
+          $movie=Movie::find($id);
+           return view('pelicula.edit',['movie'=>$movie,'genres'=>$genres]);
     }
 
     /**
@@ -75,7 +80,11 @@ class PeliculaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $movie=Movie::find($id);
+        $movie->fill($request->all());
+        $movie->save();
+        Session::flash('message',' Pelicula editada correctamente');
+        return Redirect::to('/pelicula');
     }
 
     /**
@@ -86,6 +95,9 @@ class PeliculaController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $movie=Movie::find($id);
+        $movie->delete();
+        Session::flash('message',' Pelicula eliminada correctamente');
+        return Redirect::to('/pelicula');
     }
 }

@@ -17,9 +17,13 @@
             <td>{{$movie->genre}}</td>
             <td>{{$movie->direction}}</td>
             <td>
-                <img src="movies/{{$movie->path}}" alt="" style="100px">
+                <img src="movies/{{$movie->path}}" alt="" style="width:100px;">
             </td>
-            <td></td>
+            <td>{!!link_to_route('pelicula.edit', $title = 'Editar',$parameters= $movie->id, $attributes = ['class'=>'btn btn-primary']);!!}</td>
+            <td>{!!Form::open(['route'=>['pelicula.destroy',$movie->id],'method'=>'DELETE'])!!}
+            {!!Form::submit('Eliminar',['class'=>'btn btn-danger'])!!}
+            {!!Form::close()!!}</td>
+            
             
         </tbody>
         @endforeach

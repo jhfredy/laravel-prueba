@@ -11,9 +11,11 @@ class Movie extends Model
     protected $fillable = ['name','path','cast','direction','duration','genres_id'];
     //se crea un mutador para no sobre escribir archivos
     public function setPathAttribute($path){
+        if(!empty($path)){
         $this->attributes['path']=Carbon::now()->second.$path->getClientOriginalName();
         $name=Carbon::now()->second.$path->getClientOriginalName();
         \Storage::disk('local')->put($name,\File::get($path));
+        }
     }
     public static function Movies(){
         return DB::table('movies')
