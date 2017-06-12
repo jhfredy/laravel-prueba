@@ -1,0 +1,25 @@
+para generar modelos 
+php artisan make:model User --migration
+php artisan make:model User -m
+
+para hacer migraciones
+php artisan migrate
+encaso de error en la migracione
+php artisan migrate:rollback
+
+crear controlador
+php artisan make:controller name --resource
+
+para linkear los yield
+@yield('content')
+
+@extends('layouts.principal')
+	@section('content')
+    @stop
+
+
+para gregar tablas rapido
+table.table>(thead>th*3)>(tbody>td*3)
+
+esto es para crear un formulario de request
+php artisan make:request StoreBlogPost
