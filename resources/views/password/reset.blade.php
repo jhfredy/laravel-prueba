@@ -1,13 +1,26 @@
 @extends('layouts.principal')
-@section('content')
- <h1>Resetear el password</h1>
- @if (count($errors) > 0)
-  <div class="alert alert-danger">
-   Los datos introducidos en el formulario son incorrectos.
-  </div>
- @endif
- <hr />
- <form method="POST" action="{{url('password/reset')}}">
+	@section('content')
+	@include('alert.succes')
+		<div class="contact-content">
+			<div class="top-header span_top">
+				<div class="logo">
+					<a href="index.html"><img src="images/logo.png" alt="" /></a>
+					<p>Movie Theater</p>
+				</div>
+			<div class="clearfix"></div>
+			</div>
+
+			<div class="main-contact">
+				 <h3 class="head">CONTACT</h3>
+				 <p>WE'RE ALWAYS HERE TO HELP YOU</p>
+				 <div class="contact-form">
+                 <h1>Resetear el password</h1>
+         @if (count($errors) > 0)
+        <div class="alert alert-danger">
+        Los datos introducidos en el formulario son incorrectos.
+        </div>
+        @endif
+					<form method="POST" action="{{url('password/reset')}}">
   {{csrf_field()}}
   <input type="hidden" name="token" value="{{$token}}" />
 
@@ -29,4 +42,7 @@
   </div>
   <button type="submit" class="btn btn-primary">Resetear Password</button>
  </form>
- @stop
+				</div>
+			</div>
+		</div>
+	@endsection
