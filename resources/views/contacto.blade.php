@@ -1,4 +1,4 @@
-@extends('layouts.principal')
+@extends('\layouts.principal')
 	@section('content')
 		<div class="contact-content">
 			<div class="top-header span_top">

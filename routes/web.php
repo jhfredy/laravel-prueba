@@ -25,7 +25,7 @@ Route::resource('pelicula','PeliculaController');
 Route::get('password','ForgotPasswordController@forgotPassword');
 Route::post('password','ForgotPasswordController@postForgotPassword');
 
-Route::get('password/reset{token}','ForgotPasswordController@getReset');
+Route::get('password/reset/{token}','ForgotPasswordController@getReset');
 Route::post('password/reset','ForgotPasswordController@postReset');
 
 Route::resource('log','logController');
