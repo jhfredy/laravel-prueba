@@ -8,6 +8,7 @@ use Cinema\Http\Requests\UserUpdateRequest;
 use Cinema\User;
 use Redirect;
 use Session;
+use Illuminate\Support\Facades\DB;
 
 
 class UsuarioController extends Controller
@@ -25,6 +26,7 @@ class UsuarioController extends Controller
             return response()->json(view('usuario.users',compact('datos'))->render()); //me retorna la vista
         }
         return view('usuario.index',compact('datos'));
+        
     }
 
     /**

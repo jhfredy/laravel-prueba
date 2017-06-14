@@ -19,6 +19,8 @@ class frontController extends Controller
     public function index()
     {
         return view('index');
+
+        
     }
 
     public function contacto(){
