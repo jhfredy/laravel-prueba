@@ -21,8 +21,12 @@ Route::resource('mail','MailController');
 Route::resource('genero','GeneroController');
 Route::resource('usuario', 'UsuarioController');
 Route::resource('pelicula','PeliculaController');
-Route::get('auth.passwords.reset','ForgotPasswordController@forgotPassword');
-Route::post('auth.passwords.reset','ForgotPasswordController@postForgotPassword');
+
+Route::get('password','ForgotPasswordController@forgotPassword');
+Route::post('password','ForgotPasswordController@postForgotPassword');
+
+Route::get('password/reset{token}','ForgotPasswordController@getReset');
+Route::post('password/reset','ForgotPasswordController@postReset');
 
 Route::resource('log','logController');
 Route::get('generos','GeneroController@listing');

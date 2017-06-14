@@ -1,13 +1,2 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-    <p><strong>Correo:</strong>{!!$email!!}</p> 
-    <p><strong>codigo</strong>{!!$token!!}</p> 
-</body>
-</html>
+<p><srong>Haz click en el siguiente enlace para resetear password: </srong></p>
+<a href="{{url()}}/pasword/reset{{$token}}">Resetear mi password</a>

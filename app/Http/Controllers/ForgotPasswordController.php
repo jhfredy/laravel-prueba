@@ -18,28 +18,30 @@ class ForgotPasswordController extends Controller
     public function forgotPassword(Request $request, $token = null)
     {
         
-        return view('auth.passwords.reset')->with(
+        return view('password.password')->with(
             ['token' => $token, 'email' => $request->email]
         );
     }
     public function postForgotPassword(Request $request)
     {
         
-        $this->validate($request, $this->rules(), $this->validationErrorMessages());
+        $messages = [
+            'email.required' => 'El campo es requerido',
+            'email.email' => 'El formato de email es incorrecto',
+        ];
+        $this->validate($request, ['email' => 'required|email'], $messages);
 
-        $response = $this->broker()->reset(
-            $this->credentials($request), function ($user, $password) {
-                $this->resetPassword($user, $password);
-            }
-        );
+        $response = Password::sendResetLink($request->only('email'), function (Message $message) {
+            $message->subject($this->getEmailSubject());
+        });
 
-                    
-                    Mail::send('emails.olvidoContra',$request->all(),function($message){
-                    $msj->subject('correo de contacto');
-                    $msj->to('jhfredy84@gmail.com');
-                });
-                Session::flash('message',' correo enviado  correctamente');
-                return Redirect::to('/contacto');
+        switch ($response) {
+            case Password::RESET_LINK_SENT:
+                return redirect()->back()->with('status', 'Hemos enviando un link a tu cuenta de correo electrónico para que puedas resetear el password');
+
+            case Password::INVALID_USER:
+                return redirect()->back()->withErrors(['email' => trans($response)]);
+        }
     }
   
     /**
@@ -47,13 +49,9 @@ class ForgotPasswordController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-      protected function rules()
+      protected function getEmailSubject()
     {
-        return [
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|confirmed|min:6',
-        ];
+        return property_exists($this, 'subject') ? $this->subject : 'Tu link para resetear el password';
     }
 
     /**
@@ -72,11 +70,13 @@ class ForgotPasswordController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    protected function credentials(Request $request)
+    public function getReset($token = null)
     {
-        return $request->only(
-            'email', 'password', 'password_confirmation', 'token'
-        );
+        if (is_null($token)) {
+            throw new NotFoundHttpException;
+        }
+
+        return view('password.reset')->with('token', $token);
     }
 
     /**
@@ -86,60 +86,71 @@ class ForgotPasswordController extends Controller
      * @param  string  $password
      * @return void
      */
+    public function postReset(Request $request)
+    {
+        
+        $messages = [
+            'email.required' => 'El campo es requerido',
+            'email.email' => 'El formato de email es incorrecto',
+            'password.required' => 'El campo es requerido',
+            'password.confirmed' => 'Los passwords no coinciden',
+            'password.min' => 'El mínimo de caracteres permitidos son 6',
+            'password.max' => 'El máximo de caracteres permitidos son 18',
+        ];
+        
+        $this->validate($request, [
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:6|max:18',
+        ], $messages);
+
+        $credentials = $request->only(
+            'email', 'password', 'password_confirmation', 'token'
+        );
+
+        $response = Password::reset($credentials, function ($user, $password) {
+            $this->resetPassword($user, $password);
+        });
+
+        switch ($response) {
+            case Password::PASSWORD_RESET:
+                return redirect($this->redirectPath())->with('status', 'Enhorabuena tu password ha sido reseteado con éxito');
+
+            default:
+                return redirect()->back()
+                            ->withInput($request->only('email'))
+                            ->withErrors(['email' => trans($response)]);
+        }
+    }
+    /**
+     * Reset the given user's password.
+     *
+     * @param  \Illuminate\Contracts\Auth\CanResetPassword  $user
+     * @param  string  $password
+     * @return void
+     */
     protected function resetPassword($user, $password)
     {
-        $user->forceFill([
-            'password' => bcrypt($password),
-            'remember_token' => Str::random(60),
-        ])->save();
+        $user->password = bcrypt($password);
 
-        $this->guard()->login($user);
+        $user->save();
+
+        Auth::login($user);
     }
 
     /**
-     * Get the response for a successful password reset.
+     * Get the post register / login redirect path.
      *
-     * @param  string  $response
-     * @return \Illuminate\Http\RedirectResponse
+     * @return string
      */
-    protected function sendResetResponse($response)
+    public function redirectPath()
     {
-        return redirect($this->redirectPath())
-                            ->with('status', trans($response));
-    }
+        if (property_exists($this, 'redirectPath')) {
+            return $this->redirectPath;
+        }
 
-    /**
-     * Get the response for a failed password reset.
-     *
-     * @param  \Illuminate\Http\Request
-     * @param  string  $response
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    protected function sendResetFailedResponse(Request $request, $response)
-    {
-        return redirect()->back()
-                    ->withInput($request->only('email'))
-                    ->withErrors(['email' => trans($response)]);
+        return property_exists($this, 'redirectTo') ? $this->redirectTo : '/';
     }
-
-    /**
-     * Get the broker to be used during password reset.
-     *
-     * @return \Illuminate\Contracts\Auth\PasswordBroker
-     */
-    public function broker()
-    {
-        return Password::broker();
-    }
-
-    /**
-     * Get the guard to be used during password reset.
-     *
-     * @return \Illuminate\Contracts\Auth\StatefulGuard
-     */
-    protected function guard()
-    {
-        return Auth::guard();
-    }
-    
 }
+    
+
